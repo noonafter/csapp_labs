@@ -344,7 +344,7 @@ Disassembly of section .text:
 
 0000000000400ee0 <phase_1>:
   400ee0:	48 83 ec 08          	sub    $0x8,%rsp
-  400ee4:	be 00 24 40 00       	mov    $0x402400,%esi             # 0x402400是第2个参数，phase1的答案！
+  400ee4:	be 00 24 40 00       	mov    $0x402400,%esi             # 0x402400是第2个参数，phase1的答案
   400ee9:	e8 4a 04 00 00       	call   401338 <strings_not_equal>
   400eee:	85 c0                	test   %eax,%eax
   400ef0:	74 05                	je     400ef7 <phase_1+0x17>
@@ -353,18 +353,18 @@ Disassembly of section .text:
   400efb:	c3                   	ret
 
 0000000000400efc <phase_2>:
-  400efc:	55                   	push   %rbp
+  400efc:	55                   	push   %rbp                       # rsp, rbp, rbx都是callee saved，用之前要保存
   400efd:	53                   	push   %rbx
   400efe:	48 83 ec 28          	sub    $0x28,%rsp
   400f02:	48 89 e6             	mov    %rsp,%rsi
-  400f05:	e8 52 05 00 00       	call   40145c <read_six_numbers>
-  400f0a:	83 3c 24 01          	cmpl   $0x1,(%rsp)
+  400f05:	e8 52 05 00 00       	call   40145c <read_six_numbers>  # read_six_numbers(input, %rsi)
+  400f0a:	83 3c 24 01          	cmpl   $0x1,(%rsp)                # 要求第1个数是1
   400f0e:	74 20                	je     400f30 <phase_2+0x34>
   400f10:	e8 25 05 00 00       	call   40143a <explode_bomb>
   400f15:	eb 19                	jmp    400f30 <phase_2+0x34>
   400f17:	8b 43 fc             	mov    -0x4(%rbx),%eax
-  400f1a:	01 c0                	add    %eax,%eax
-  400f1c:	39 03                	cmp    %eax,(%rbx)
+  400f1a:	01 c0                	add    %eax,%eax                  # 上一个数*2
+  400f1c:	39 03                	cmp    %eax,(%rbx)                # 要求这个数等于上一个数*2
   400f1e:	74 05                	je     400f25 <phase_2+0x29>
   400f20:	e8 15 05 00 00       	call   40143a <explode_bomb>
   400f25:	48 83 c3 04          	add    $0x4,%rbx
@@ -374,25 +374,25 @@ Disassembly of section .text:
   400f30:	48 8d 5c 24 04       	lea    0x4(%rsp),%rbx
   400f35:	48 8d 6c 24 18       	lea    0x18(%rsp),%rbp
   400f3a:	eb db                	jmp    400f17 <phase_2+0x1b>
-  400f3c:	48 83 c4 28          	add    $0x28,%rsp
+  400f3c:	48 83 c4 28          	add    $0x28,%rsp                # rsp, rbp, rbx都是callee saved，用完需要恢复
   400f40:	5b                   	pop    %rbx
   400f41:	5d                   	pop    %rbp
   400f42:	c3                   	ret
 
 0000000000400f43 <phase_3>:
   400f43:	48 83 ec 18          	sub    $0x18,%rsp
-  400f47:	48 8d 4c 24 0c       	lea    0xc(%rsp),%rcx
-  400f4c:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx
-  400f51:	be cf 25 40 00       	mov    $0x4025cf,%esi
+  400f47:	48 8d 4c 24 0c       	lea    0xc(%rsp),%rcx           # sscanf第4个参数，整数2的位置
+  400f4c:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx           # sscanf第3个参数，整数1的位置
+  400f51:	be cf 25 40 00       	mov    $0x4025cf,%esi           # sscanf第2个参数，格式化字符串 %d %d
   400f56:	b8 00 00 00 00       	mov    $0x0,%eax
   400f5b:	e8 90 fc ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  400f60:	83 f8 01             	cmp    $0x1,%eax
+  400f60:	83 f8 01             	cmp    $0x1,%eax                # 至少输入2个整数
   400f63:	7f 05                	jg     400f6a <phase_3+0x27>
   400f65:	e8 d0 04 00 00       	call   40143a <explode_bomb>
   400f6a:	83 7c 24 08 07       	cmpl   $0x7,0x8(%rsp)
-  400f6f:	77 3c                	ja     400fad <phase_3+0x6a>
+  400f6f:	77 3c                	ja     400fad <phase_3+0x6a>    # 要求第一个数不大于7,即0到7
   400f71:	8b 44 24 08          	mov    0x8(%rsp),%eax
-  400f75:	ff 24 c5 70 24 40 00 	jmp    *0x402470(,%rax,8)
+  400f75:	ff 24 c5 70 24 40 00 	jmp    *0x402470(,%rax,8)       # 跳转表，根据第1个数选择eax数值，用gdb打印
   400f7c:	b8 cf 00 00 00       	mov    $0xcf,%eax
   400f81:	eb 3b                	jmp    400fbe <phase_3+0x7b>
   400f83:	b8 c3 02 00 00       	mov    $0x2c3,%eax
@@ -411,13 +411,13 @@ Disassembly of section .text:
   400fb2:	b8 00 00 00 00       	mov    $0x0,%eax
   400fb7:	eb 05                	jmp    400fbe <phase_3+0x7b>
   400fb9:	b8 37 01 00 00       	mov    $0x137,%eax
-  400fbe:	3b 44 24 0c          	cmp    0xc(%rsp),%eax
+  400fbe:	3b 44 24 0c          	cmp    0xc(%rsp),%eax         # 要求第2个数等于eax
   400fc2:	74 05                	je     400fc9 <phase_3+0x86>
   400fc4:	e8 71 04 00 00       	call   40143a <explode_bomb>
   400fc9:	48 83 c4 18          	add    $0x18,%rsp
   400fcd:	c3                   	ret
 
-0000000000400fce <func4>:
+0000000000400fce <func4>:                                     # 整个函数中，edi为只读，一直为第1个整数
   400fce:	48 83 ec 08          	sub    $0x8,%rsp
   400fd2:	89 d0                	mov    %edx,%eax
   400fd4:	29 f0                	sub    %esi,%eax
@@ -426,17 +426,17 @@ Disassembly of section .text:
   400fdb:	01 c8                	add    %ecx,%eax
   400fdd:	d1 f8                	sar    $1,%eax
   400fdf:	8d 0c 30             	lea    (%rax,%rsi,1),%ecx
-  400fe2:	39 f9                	cmp    %edi,%ecx
+  400fe2:	39 f9                	cmp    %edi,%ecx                 
   400fe4:	7e 0c                	jle    400ff2 <func4+0x24>
   400fe6:	8d 51 ff             	lea    -0x1(%rcx),%edx
   400fe9:	e8 e0 ff ff ff       	call   400fce <func4>
   400fee:	01 c0                	add    %eax,%eax
   400ff0:	eb 15                	jmp    401007 <func4+0x39>
   400ff2:	b8 00 00 00 00       	mov    $0x0,%eax
-  400ff7:	39 f9                	cmp    %edi,%ecx
+  400ff7:	39 f9                	cmp    %edi,%ecx             # 要求ecx大于等于第1个数
   400ff9:	7d 0c                	jge    401007 <func4+0x39>
   400ffb:	8d 71 01             	lea    0x1(%rcx),%esi
-  400ffe:	e8 cb ff ff ff       	call   400fce <func4>
+  400ffe:	e8 cb ff ff ff       	call   400fce <func4>        # 迭代函数
   401003:	8d 44 00 01          	lea    0x1(%rax,%rax,1),%eax
   401007:	48 83 c4 08          	add    $0x8,%rsp
   40100b:	c3                   	ret
@@ -445,22 +445,22 @@ Disassembly of section .text:
   40100c:	48 83 ec 18          	sub    $0x18,%rsp
   401010:	48 8d 4c 24 0c       	lea    0xc(%rsp),%rcx
   401015:	48 8d 54 24 08       	lea    0x8(%rsp),%rdx
-  40101a:	be cf 25 40 00       	mov    $0x4025cf,%esi
+  40101a:	be cf 25 40 00       	mov    $0x4025cf,%esi            # sscanf第2个参数，格式化字符串 %d %d
   40101f:	b8 00 00 00 00       	mov    $0x0,%eax
   401024:	e8 c7 fb ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  401029:	83 f8 02             	cmp    $0x2,%eax
+  401029:	83 f8 02             	cmp    $0x2,%eax                 # 要求输入两个整数
   40102c:	75 07                	jne    401035 <phase_4+0x29>
-  40102e:	83 7c 24 08 0e       	cmpl   $0xe,0x8(%rsp)
-  401033:	76 05                	jbe    40103a <phase_4+0x2e>
+  40102e:	83 7c 24 08 0e       	cmpl   $0xe,0x8(%rsp)            
+  401033:	76 05                	jbe    40103a <phase_4+0x2e>     # 要求第1个数低于或等于14
   401035:	e8 00 04 00 00       	call   40143a <explode_bomb>
   40103a:	ba 0e 00 00 00       	mov    $0xe,%edx
   40103f:	be 00 00 00 00       	mov    $0x0,%esi
   401044:	8b 7c 24 08          	mov    0x8(%rsp),%edi
-  401048:	e8 81 ff ff ff       	call   400fce <func4>
+  401048:	e8 81 ff ff ff       	call   400fce <func4>           # func4(第1个数, 0, 14, 第2个数的地址)
   40104d:	85 c0                	test   %eax,%eax
-  40104f:	75 07                	jne    401058 <phase_4+0x4c>
+  40104f:	75 07                	jne    401058 <phase_4+0x4c>    # 要求func4返回值为0
   401051:	83 7c 24 0c 00       	cmpl   $0x0,0xc(%rsp)
-  401056:	74 05                	je     40105d <phase_4+0x51>
+  401056:	74 05                	je     40105d <phase_4+0x51>    # 要求第2个数为0
   401058:	e8 dd 03 00 00       	call   40143a <explode_bomb>
   40105d:	48 83 c4 18          	add    $0x18,%rsp
   401061:	c3                   	ret
@@ -468,29 +468,29 @@ Disassembly of section .text:
 0000000000401062 <phase_5>:
   401062:	53                   	push   %rbx
   401063:	48 83 ec 20          	sub    $0x20,%rsp
-  401067:	48 89 fb             	mov    %rdi,%rbx
-  40106a:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  401067:	48 89 fb             	mov    %rdi,%rbx                # 复制输入字符串首地址到%rbx
+  40106a:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax           
   401071:	00 00 
-  401073:	48 89 44 24 18       	mov    %rax,0x18(%rsp)
-  401078:	31 c0                	xor    %eax,%eax
+  401073:	48 89 44 24 18       	mov    %rax,0x18(%rsp)          # 从段寄存器偏移28处取一个只读值，放入栈中，防止栈溢出攻击
+  401078:	31 c0                	xor    %eax,%eax                # rax置0
   40107a:	e8 9c 02 00 00       	call   40131b <string_length>
-  40107f:	83 f8 06             	cmp    $0x6,%eax
-  401082:	74 4e                	je     4010d2 <phase_5+0x70>
+  40107f:	83 f8 06             	cmp    $0x6,%eax                
+  401082:	74 4e                	je     4010d2 <phase_5+0x70>    # 要求字符串长度为6
   401084:	e8 b1 03 00 00       	call   40143a <explode_bomb>
   401089:	eb 47                	jmp    4010d2 <phase_5+0x70>
   40108b:	0f b6 0c 03          	movzbl (%rbx,%rax,1),%ecx
   40108f:	88 0c 24             	mov    %cl,(%rsp)
   401092:	48 8b 14 24          	mov    (%rsp),%rdx
-  401096:	83 e2 0f             	and    $0xf,%edx
-  401099:	0f b6 92 b0 24 40 00 	movzbl 0x4024b0(%rdx),%edx
-  4010a0:	88 54 04 10          	mov    %dl,0x10(%rsp,%rax,1)
+  401096:	83 e2 0f             	and    $0xf,%edx                # 取input[0]的低4位，作为索引
+  401099:	0f b6 92 b0 24 40 00 	movzbl 0x4024b0(%rdx),%edx      # 按照索引，从字符串maduiersnfotvbyl中取字符
+  4010a0:	88 54 04 10          	mov    %dl,0x10(%rsp,%rax,1)    # 字符依次放到rsp+0x10处
   4010a4:	48 83 c0 01          	add    $0x1,%rax
-  4010a8:	48 83 f8 06          	cmp    $0x6,%rax
-  4010ac:	75 dd                	jne    40108b <phase_5+0x29>
-  4010ae:	c6 44 24 16 00       	movb   $0x0,0x16(%rsp)
-  4010b3:	be 5e 24 40 00       	mov    $0x40245e,%esi
+  4010a8:	48 83 f8 06          	cmp    $0x6,%rax      
+  4010ac:	75 dd                	jne    40108b <phase_5+0x29>    # 依次取6个，放入rsp+0x10到rsp+0x15
+  4010ae:	c6 44 24 16 00       	movb   $0x0,0x16(%rsp)          # 字符串末尾加\000
+  4010b3:	be 5e 24 40 00       	mov    $0x40245e,%esi           # 字符串为flyers
   4010b8:	48 8d 7c 24 10       	lea    0x10(%rsp),%rdi
-  4010bd:	e8 76 02 00 00       	call   401338 <strings_not_equal>
+  4010bd:	e8 76 02 00 00       	call   401338 <strings_not_equal> # 要求取出的字符串等于flyers，即要求input低4位索引依次为9,15,14,5,6,7
   4010c2:	85 c0                	test   %eax,%eax
   4010c4:	74 13                	je     4010d9 <phase_5+0x77>
   4010c6:	e8 6f 03 00 00       	call   40143a <explode_bomb>
@@ -499,7 +499,7 @@ Disassembly of section .text:
   4010d2:	b8 00 00 00 00       	mov    $0x0,%eax
   4010d7:	eb b2                	jmp    40108b <phase_5+0x29>
   4010d9:	48 8b 44 24 18       	mov    0x18(%rsp),%rax
-  4010de:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
+  4010de:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax            # 检查0x18(%rsp)处的值是否被篡改
   4010e5:	00 00 
   4010e7:	74 05                	je     4010ee <phase_5+0x8c>
   4010e9:	e8 42 fa ff ff       	call   400b30 <__stack_chk_fail@plt>
@@ -512,8 +512,8 @@ Disassembly of section .text:
   4010f6:	41 55                	push   %r13
   4010f8:	41 54                	push   %r12
   4010fa:	55                   	push   %rbp
-  4010fb:	53                   	push   %rbx                          # callee saved registers
-  4010fc:	48 83 ec 50          	sub    $0x50,%rsp
+  4010fb:	53                   	push   %rbx                          
+  4010fc:	48 83 ec 50          	sub    $0x50,%rsp                   # callee saved registers
   401100:	49 89 e5             	mov    %rsp,%r13
   401103:	48 89 e6             	mov    %rsp,%rsi
   401106:	e8 51 03 00 00       	call   40145c <read_six_numbers>
@@ -522,7 +522,7 @@ Disassembly of section .text:
   401114:	4c 89 ed             	mov    %r13,%rbp
   401117:	41 8b 45 00          	mov    0x0(%r13),%eax
   40111b:	83 e8 01             	sub    $0x1,%eax
-  40111e:	83 f8 05             	cmp    $0x5,%eax
+  40111e:	83 f8 05             	cmp    $0x5,%eax                    # 要求整数n低于等于6
   401121:	76 05                	jbe    401128 <phase_6+0x34>
   401123:	e8 12 03 00 00       	call   40143a <explode_bomb>
   401128:	41 83 c4 01          	add    $0x1,%r12d
@@ -543,19 +543,19 @@ Disassembly of section .text:
   401158:	4c 89 f0             	mov    %r14,%rax
   40115b:	b9 07 00 00 00       	mov    $0x7,%ecx
   401160:	89 ca                	mov    %ecx,%edx
-  401162:	2b 10                	sub    (%rax),%edx
-  401164:	89 10                	mov    %edx,(%rax)
+  401162:	2b 10                	sub    (%rax),%edx      
+  401164:	89 10                	mov    %edx,(%rax)                # 将整数n 变成 7-整数n
   401166:	48 83 c0 04          	add    $0x4,%rax
-  40116a:	48 39 f0             	cmp    %rsi,%rax
+  40116a:	48 39 f0             	cmp    %rsi,%rax                  # 直到%rax==%rsi，所有的整数n都变成7-整数n
   40116d:	75 f1                	jne    401160 <phase_6+0x6c>
-  40116f:	be 00 00 00 00       	mov    $0x0,%esi
+  40116f:	be 00 00 00 00       	mov    $0x0,%esi                  # 阶段2结束，要求整数为1到6,且所有整数被7减去，阶段3开始
   401174:	eb 21                	jmp    401197 <phase_6+0xa3>
   401176:	48 8b 52 08          	mov    0x8(%rdx),%rdx
   40117a:	83 c0 01             	add    $0x1,%eax
   40117d:	39 c8                	cmp    %ecx,%eax
   40117f:	75 f5                	jne    401176 <phase_6+0x82>
   401181:	eb 05                	jmp    401188 <phase_6+0x94>
-  401183:	ba d0 32 60 00       	mov    $0x6032d0,%edx
+  401183:	ba d0 32 60 00       	mov    $0x6032d0,%edx             
   401188:	48 89 54 74 20       	mov    %rdx,0x20(%rsp,%rsi,2)
   40118d:	48 83 c6 04          	add    $0x4,%rsi
   401191:	48 83 fe 18          	cmp    $0x18,%rsi
@@ -571,7 +571,7 @@ Disassembly of section .text:
   4011b5:	48 8d 74 24 50       	lea    0x50(%rsp),%rsi
   4011ba:	48 89 d9             	mov    %rbx,%rcx
   4011bd:	48 8b 10             	mov    (%rax),%rdx
-  4011c0:	48 89 51 08          	mov    %rdx,0x8(%rcx)
+  4011c0:	48 89 51 08          	mov    %rdx,0x8(%rcx)           # long1+8处存long2,循环链表
   4011c4:	48 83 c0 08          	add    $0x8,%rax
   4011c8:	48 39 f0             	cmp    %rsi,%rax
   4011cb:	74 05                	je     4011d2 <phase_6+0xde>
@@ -582,8 +582,8 @@ Disassembly of section .text:
   4011da:	bd 05 00 00 00       	mov    $0x5,%ebp
   4011df:	48 8b 43 08          	mov    0x8(%rbx),%rax
   4011e3:	8b 00                	mov    (%rax),%eax
-  4011e5:	39 03                	cmp    %eax,(%rbx)
-  4011e7:	7d 05                	jge    4011ee <phase_6+0xfa>
+  4011e5:	39 03                	cmp    %eax,(%rbx)             
+  4011e7:	7d 05                	jge    4011ee <phase_6+0xfa>   # 要求rsp+20先存的值要大于后面的值，因此关键阶段就是第3阶段，在rsp+20处怎么存的6个long
   4011e9:	e8 4c 02 00 00       	call   40143a <explode_bomb>
   4011ee:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
   4011f2:	83 ed 01             	sub    $0x1,%ebp
@@ -596,14 +596,14 @@ Disassembly of section .text:
   401201:	41 5e                	pop    %r14
   401203:	c3                   	ret
 
-0000000000401204 <fun7>:
+0000000000401204 <fun7>:                                     # esi只读，一直是输入的整数
   401204:	48 83 ec 08          	sub    $0x8,%rsp
   401208:	48 85 ff             	test   %rdi,%rdi
   40120b:	74 2b                	je     401238 <fun7+0x34>
-  40120d:	8b 17                	mov    (%rdi),%edx
+  40120d:	8b 17                	mov    (%rdi),%edx           
   40120f:	39 f2                	cmp    %esi,%edx
-  401211:	7e 0d                	jle    401220 <fun7+0x1c>
-  401213:	48 8b 7f 08          	mov    0x8(%rdi),%rdi
+  401211:	7e 0d                	jle    401220 <fun7+0x1c>    # edx : esi
+  401213:	48 8b 7f 08          	mov    0x8(%rdi),%rdi        # 若edx>整数，rdi向后移动一个位置
   401217:	e8 e8 ff ff ff       	call   401204 <fun7>
   40121c:	01 c0                	add    %eax,%eax
   40121e:	eb 1d                	jmp    40123d <fun7+0x39>
@@ -621,19 +621,19 @@ Disassembly of section .text:
 0000000000401242 <secret_phase>:
   401242:	53                   	push   %rbx
   401243:	e8 56 02 00 00       	call   40149e <read_line>
-  401248:	ba 0a 00 00 00       	mov    $0xa,%edx
+  401248:	ba 0a 00 00 00       	mov    $0xa,%edx                  # 10进制
   40124d:	be 00 00 00 00       	mov    $0x0,%esi
   401252:	48 89 c7             	mov    %rax,%rdi
   401255:	e8 76 f9 ff ff       	call   400bd0 <strtol@plt>
   40125a:	48 89 c3             	mov    %rax,%rbx
   40125d:	8d 40 ff             	lea    -0x1(%rax),%eax
   401260:	3d e8 03 00 00       	cmp    $0x3e8,%eax
-  401265:	76 05                	jbe    40126c <secret_phase+0x2a>
+  401265:	76 05                	jbe    40126c <secret_phase+0x2a>  # 要求整数-1后<=3e8,即整数为1到3e9
   401267:	e8 ce 01 00 00       	call   40143a <explode_bomb>
   40126c:	89 de                	mov    %ebx,%esi
-  40126e:	bf f0 30 60 00       	mov    $0x6030f0,%edi
+  40126e:	bf f0 30 60 00       	mov    $0x6030f0,%edi              # 这里是立即数
   401273:	e8 8c ff ff ff       	call   401204 <fun7>
-  401278:	83 f8 02             	cmp    $0x2,%eax
+  401278:	83 f8 02             	cmp    $0x2,%eax                   # 要求fun7(0x6030f0,整数)返回2
   40127b:	74 05                	je     401282 <secret_phase+0x40>
   40127d:	e8 b8 01 00 00       	call   40143a <explode_bomb>
   401282:	bf 38 24 40 00       	mov    $0x402438,%edi
@@ -805,15 +805,15 @@ Disassembly of section .text:
   401460:	48 89 f2             	mov    %rsi,%rdx                  # sscanf第3个参数，整数1的位置
   401463:	48 8d 4e 04          	lea    0x4(%rsi),%rcx             # sscanf第4个参数，整数2的位置
   401467:	48 8d 46 14          	lea    0x14(%rsi),%rax
-  40146b:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  40146b:	48 89 44 24 08       	mov    %rax,0x8(%rsp)             # sscanf第8个参数，整数6的位置。超过6个参数，由调用者栈帧传递
   401470:	48 8d 46 10          	lea    0x10(%rsi),%rax
-  401474:	48 89 04 24          	mov    %rax,(%rsp)
+  401474:	48 89 04 24          	mov    %rax,(%rsp)                # sscanf第7个参数，整数5的位置。超过6个参数，由调用者栈帧传递
   401478:	4c 8d 4e 0c          	lea    0xc(%rsi),%r9              # sscanf第6个参数，整数4的位置
   40147c:	4c 8d 46 08          	lea    0x8(%rsi),%r8              # sscanf第5个参数，整数3的位置
-  401480:	be c3 25 40 00       	mov    $0x4025c3,%esi             # sscanf第2个参数，格式化字符串%d %d %d %d %d %d
+  401480:	be c3 25 40 00       	mov    $0x4025c3,%esi             # sscanf第2个参数，格式化字符串 %d %d %d %d %d %d
   401485:	b8 00 00 00 00       	mov    $0x0,%eax
-  40148a:	e8 61 f7 ff ff       	call   400bf0 <__isoc99_sscanf@plt>
-  40148f:	83 f8 05             	cmp    $0x5,%eax
+  40148a:	e8 61 f7 ff ff       	call   400bf0 <__isoc99_sscanf@plt> # sscanf第1个参数为input，由%rdi传递
+  40148f:	83 f8 05             	cmp    $0x5,%eax                  # 要求输入至少6个整数（可以大于6个）
   401492:	7f 05                	jg     401499 <read_six_numbers+0x3d>
   401494:	e8 a1 ff ff ff       	call   40143a <explode_bomb>
   401499:	48 83 c4 18          	add    $0x18,%rsp

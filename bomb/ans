@@ -1,6 +1,6 @@
 Border relations with Canada have never been better.
-1 2 4 8 16 32
-3 256
-7 0
+1 2 4 8 16 32 /*phase_2的答案*/
+3 256         /*phase_3的答案*/
+7 0           /*加上DrEvil可以触发secret_phase，答案是20或22*/
 9/.567
-4 3 2 1 6 5
+4 3 2 1 6 5   /*phase_6的答案*/
