@@ -1,0 +1,166 @@
+首先对bomb进行反汇编，这是逆向分析的第一步：
+objdump -d bomb > bomb.s
+找到main函数后，对照汇编代码和C代码，会发现很多可疑的字符串地址，比如0x4022b4
+这里发现字符串首地址，jmp以及call的跳转地址都位于低地址段，这是x86-64架构程序的典型特征。
+这些字符串地址均位于只读数据段，可以通过gdb打印出来查看其内容。
+
+使用gdb打断点并运行
+gdb bomb
+(gdb) break main
+(gdb) run
+设置print元素数量为256（可选），
+打印字符串内容，这里可以发现很多有用的信息，比如错误提示信息，阶段提示信息等，并且还发现有隐藏阶段的提示信息。
+
+(gdb) set print elements 256
+(gdb) p *(char*)0x4022b4@256
+$6 = "r
+%s: Error: Couldn't open %s\n
+Usage: %s [<input_file>]\n
+That's number 2.  Keep going!
+Halfway there!
+Good work!  On to the next...
+Welcome to my fiendish little bomb. You have 6 phases with
+
+which to blow yourself up. Have a nice day!
+
+Phase 1 defu"
+
+(gdb) p *(char*)0x4023b4@256
+$7 = "sed. How about the next one?
+
+So you got that one.  Try this one.
+
+Border relations with Canada have never been better.
+
+Wow! You've defused the secret stage!
+flyers", '
+' <repeats 12 times>, "|\017@
+
+\271\017@
+
+\203\017@
+
+\212\017@
+
+\221\017@
+
+\230\017@
+
+\237\017@
+
+\246\017@
+
+madu"
+(gdb) p *(char*)0x4024b4@256
+$8 = "iersnfotvbylSo you think you can stop the bomb with ctrl-c, do you?
+Curses, you've found the secret phase!
+
+But finding it and solving it are quite different...
+
+Congratulations! You've defused the bomb!
+Well...
+OK. :-)
+Invalid phase%s\n
+\nBOOM!!!
+The bomb"
+(gdb) p *(char*)0x4025b4@256
+$9 = " has blown up.
+%d %d %d %d %d %d
+Error: Premature EOF on stdin
+GRADE_BOMB
+Error: Input line too long
+%d %d %s
+DrEvil
+greatwhite.ics.cs.cmu.edu
+angelshark.ics.cs.cmu.edu
+makoshark.ics.cs.cmu.edu
+
+Program timed out after %d seconds\n
+
+Error: HTTP request "
+
+(gdb) p *(char*)0x4026b4@256
+$10 = "failed with error %d: %s
+
+GET /%s/submitr.pl/?userid=%s&lab=%s&result=%s&submit=submit HTTP/1.0\r\n\r\n
+
+Error: Unable to connect to server %s
+
+%%%02X
+%s %d %[a-zA-z ]
+changeme.ics.cs.cmu.edu
+\nAUTORESULT_STRING=%s\n
+csapp
+
+\001\033\003;\004\001
+
+\037
+
+
+\070\343\377\377 \001
+
+\b\346\377\377H\001
+"
+(gdb) p *(char*)0x4027b4@256
+$11 = "H\347\377\377h\001
+
+d\347\377\377\200\001
+
+\253\347\377\377\250\001
+
+\066\350\377\377\300\001
+
+t\350\377\377\330\001
+
+\312\350\377\377\360\001
+
+\\\351\377\377\020\002
+
+l\352\377\377X\002
+
+\252\352\377\377p\002
+
+\b\353\377\377\220\002
+
+^\353\377\377\250\002
+
+\203\353\377\377\300\002
+
+\240\353\377\377\330\002
+
+\n\354\377\377\b\003
+
+\"\354\377\377 \003
+
+$\354\377\377\070\003
+
+a\354\377\377`\003
+
+\242\354\377\377\200\003
+
+\304\354\377\377\230\003
+
+\006\355\377\377\260\003
+
+,\356\377\377\320\003
+
+\310\356\377\377\360\003
+
+\366\356\377\377\b\004
+
+\024\360\377\377X\004
+
+\371\367\377\377\250\004
+
+ \370\377\377\310\004
+
+\365\371\377\377\370\004
+
+x\372\377\377\030\005
+
+\b\373\377\377@\005
+
+\024
+
+\001zR
+\001x\020\001\033\f\a\b"

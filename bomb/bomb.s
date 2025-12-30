@@ -264,15 +264,15 @@ Disassembly of section .text:
   400da0:	53                   	push   %rbx
   400da1:	83 ff 01             	cmp    $0x1,%edi                  # 比较 argc:1
   400da4:	75 10                	jne    400db6 <main+0x16>         # 若argc不等于1，跳转400db6，进一步比较
-  400da6:	48 8b 05 9b 29 20 00 	mov    0x20299b(%rip),%rax        # 否则，设置infile并跳到ifelse结束。603748 <stdin@GLIBC_2.2.5>
+  400da6:	48 8b 05 9b 29 20 00 	mov    0x20299b(%rip),%rax        # 否则，获得stdin的地址，603748 <stdin@GLIBC_2.2.5>
   400dad:	48 89 05 b4 29 20 00 	mov    %rax,0x2029b4(%rip)        # 603768 <infile> 全局变量infile在内存中的地址
   400db4:	eb 63                	jmp    400e19 <main+0x79>         # 跳转到ifelse结束
-  400db6:	48 89 f3             	mov    %rsi,%rbx                  # 指针argv放到rbx中，rbi和rsi是一样的了，有点没搞懂，为什么这么复制一下
+  400db6:	48 89 f3             	mov    %rsi,%rbx                  # argv拷贝到rbx中。由于rsi可能会被fopen改变，caller saved
   400db9:	83 ff 02             	cmp    $0x2,%edi                  # 比较 argc:2
-  400dbc:	75 3a                	jne    400df8 <main+0x58>         # 若argc不等于2，跳转400df8（打印退出）
-  400dbe:	48 8b 7e 08          	mov    0x8(%rsi),%rdi             # 否则，调用fopen。fopen的第1个参数，argv[1]
-  400dc2:	be b4 22 40 00       	mov    $0x4022b4,%esi
-  400dc7:	e8 44 fe ff ff       	call   400c10 <fopen@plt>         # 调用fopen，返回值在%rax中
+  400dbc:	75 3a                	jne    400df8 <main+0x58>         # 若argc不等于2，跳转400df8，打印退出
+  400dbe:	48 8b 7e 08          	mov    0x8(%rsi),%rdi             # 否则，获得fopen的第1个参数，argv[1]
+  400dc2:	be b4 22 40 00       	mov    $0x4022b4,%esi             # fopen的第2个参数，"r"
+  400dc7:	e8 44 fe ff ff       	call   400c10 <fopen@plt>         # 调用fopen，返回值为文件指针，在%rax中
   400dcc:	48 89 05 95 29 20 00 	mov    %rax,0x202995(%rip)        # 603768 <infile>
   400dd3:	48 85 c0             	test   %rax,%rax                  # 测试fopen的返回值，查看文件是否正常打开
   400dd6:	75 41                	jne    400e19 <main+0x79>         # 若返回值不为0，跳到ifelse结束
@@ -290,13 +290,13 @@ Disassembly of section .text:
   400e0a:	e8 f1 fd ff ff       	call   400c00 <__printf_chk@plt>
   400e0f:	bf 08 00 00 00       	mov    $0x8,%edi
   400e14:	e8 07 fe ff ff       	call   400c20 <exit@plt>          # 调用exit，退出
-  400e19:	e8 84 05 00 00       	call   4013a2 <initialize_bomb>   # ifelse结束，initialize_bomb开始
+  400e19:	e8 84 05 00 00       	call   4013a2 <initialize_bomb>   # ifelse结束，调用initialize_bomb
   400e1e:	bf 38 23 40 00       	mov    $0x402338,%edi
   400e23:	e8 e8 fc ff ff       	call   400b10 <puts@plt>
   400e28:	bf 78 23 40 00       	mov    $0x402378,%edi
   400e2d:	e8 de fc ff ff       	call   400b10 <puts@plt>
   400e32:	e8 67 06 00 00       	call   40149e <read_line>
-  400e37:	48 89 c7             	mov    %rax,%rdi                  # 第1个参数为read_line读到的字符串起始地址
+  400e37:	48 89 c7             	mov    %rax,%rdi                  # phase_1的第1个参数，为read_line读到的字符串起始地址
   400e3a:	e8 a1 00 00 00       	call   400ee0 <phase_1>
   400e3f:	e8 80 07 00 00       	call   4015c4 <phase_defused>
   400e44:	bf a8 23 40 00       	mov    $0x4023a8,%edi
