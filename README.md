@@ -8,8 +8,9 @@ CMU CS15213：CSAPP的实验和学习笔记。
 
 ## 当前 Labs
 
-- **Bomb Lab** (`bomb/`): 炸弹拆除实验。涉及逆向工程和汇编代码分析。包含源代码、汇编文件和解答。
 - **Data Lab** (`datalab-handout/`): 数据实验。练习位操作和整数/浮点数表示。包含测试文件和实现代码。
+- **Bomb Lab** (`bomb/`): 炸弹拆除实验。涉及逆向工程和汇编代码分析。包含源代码、汇编文件和解答。
+- **Attack Lab** (`target1/`): 攻击实验。利用gets函数的缓冲区溢出漏洞，分别使用code injection和ROP攻击ctarget和rtarget。包含源代码、汇编文件和解答。
 
 
 
@@ -17,7 +18,6 @@ CMU CS15213：CSAPP的实验和学习笔记。
 
 随着课程学习，会添加以下 Labs 和笔记：
 
-- Attack Lab: 攻击实验
 - Cache Lab: 缓存实验
 - Shell Lab: Shell 实验
 - Malloc Lab: 内存分配实验
